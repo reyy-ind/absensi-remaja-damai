@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Absensi Karang Taruna Desa Kulumprit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F4F5EC;
+      --surface: #FFFFFF;
+      --ink: #22301D;
+      --ink-soft: #5B664F;
+      --ink-faint: #8B9482;
+      --border: #DBDCC7;
+      --primary: #3F6B45;
+      --primary-dark: #2A4B30;
+      --primary-tint: #E7EEE1;
+      --gold: #B98B2E;
+      --gold-tint: #F4E9D2;
+      --sakit: #5D6E8C;
+      --sakit-tint: #E4E8F0;
+      --alpa: #A24A3B;
+      --alpa-tint: #F3DFD9;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 28px 20px 80px;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 8px 0 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .site-header svg {
+      flex-shrink: 0;
+    }
+
+    .site-header h1 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      margin: 0 0 2px;
+      color: var(--primary-dark);
+      letter-spacing: -0.01em;
+    }
+
+    .site-header p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--ink-soft);
+      background: none;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--ink);
+    }
+
+    .tab-btn.active {
+      color: var(--primary-dark);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1.15rem;
+      margin: 0 0 14px;
+      color: var(--ink);
+    }
+
+    .card h3 {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0 0 10px;
+      color: var(--ink);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .stat-card .num {
+      font-family: 'Fraunces', serif;
+      font-size: 1.9rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      line-height: 1;
+    }
+
+    .stat-card .label {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      margin-top: 6px;
+    }
+
+    @media (max-width:600px) {
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input[type=text],
+    input[type=date],
+    textarea,
+    select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.92rem;
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 1px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .field-row>.field {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    button.btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button.btn:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+
+    button.btn.secondary {
+      background: var(--surface);
+      color: var(--primary-dark);
+    }
+
+    button.btn.secondary:hover {
+      background: var(--primary-tint);
+    }
+
+    button.btn.ghost {
+      background: none;
+      border-color: transparent;
+      color: var(--ink-soft);
+      padding: 6px 8px;
+    }
+
+    button.btn.ghost:hover {
+      color: var(--alpa);
+    }
+
+    button.btn.small {
+      padding: 5px 10px;
+      font-size: 0.8rem;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      color: var(--ink-soft);
+      font-weight: 600;
+      font-size: 0.78rem;
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 16px;
+      color: var(--ink-soft);
+    }
+
+    .empty-state svg {
+      margin-bottom: 10px;
+      opacity: 0.7;
+    }
+
+    .status-group {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .status-btn {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--ink-soft);
+      cursor: pointer;
+    }
+
+    .status-btn[data-status="Hadir"].active {
+      background: var(--primary-tint);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+    }
+
+    .status-btn[data-status="Izin"].active {
+      background: var(--gold-tint);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .status-btn[data-status="Sakit"].active {
+      background: var(--sakit-tint);
+      border-color: var(--sakit);
+      color: var(--sakit);
+    }
+
+    .status-btn[data-status="Alpa"].active {
+      background: var(--alpa-tint);
+      border-color: var(--alpa);
+      color: var(--alpa);
+    }
+
+    .status-btn:hover {
+      border-color: var(--ink-faint);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    .badge.Hadir {
+      background: var(--primary-tint);
+      color: var(--primary-dark);
+    }
+
+    .badge.Izin {
+      background: var(--gold-tint);
+      color: var(--gold);
+    }
+
+    .badge.Sakit {
+      background: var(--sakit-tint);
+      color: var(--sakit);
+    }
+
+    .badge.Alpa {
+      background: var(--alpa-tint);
+      color: var(--alpa);
+    }
+
+    .badge.none {
+      background: #EEE;
+      color: var(--ink-faint);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      max-width: 240px;
+    }
+
+    .muted {
+      color: var(--ink-soft);
+      font-size: 0.85rem;
+    }
+
+    .save-indicator {
+      font-size: 0.78rem;
+      color: var(--primary);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .save-indicator.show {
+      opacity: 1;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-bar .fill {
+      height: 100%;
+      background: var(--primary);
+    }
+
+    .meeting-row {
+      cursor: pointer;
+    }
+
+    .meeting-row:hover {
+      background: var(--primary-tint);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    @media print {
+
+      .tabs,
+      .toolbar button,
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="site-header">
+      <svg width="42" height="42" viewBox="0 0 48 48" fill="none">
+        <path d="M24 44V20" stroke="#3F6B45" stroke-width="2.2" stroke-linecap="round" />
+        <path d="M24 20C24 20 10 18 10 6C22 6 24 20 24 20Z" fill="#B98B2E" opacity="0.85" />
+        <path d="M24 24C24 24 38 22 38 10C26 10 24 24 24 24Z" fill="#3F6B45" />
+        <path d="M17 44H31" stroke="#2A4B30" stroke-width="2.2" stroke-linecap="round" />
+      </svg>
+      <div>
+        <h1>Karang Taruna Desa Kulumprit</h1>
+        <p>Absensi rapat bulanan pengurus &amp; anggota</p>
+      </div>
+    </div>
+
+    <nav class="tabs" id="tabs"></nav>
+    <main id="content"></main>
+  </div>
+
+  <script>
+    // ---------- State ----------
+    let members = [];
+    let meetings = [];
+    let attendance = {}; // { meetingId: { memberId: status } }
+    let activeTab = 'ringkasan';
+    let selectedMeetingId = null;
+    let memberSearch = '';
+    let attendanceSearch = '';
+    let dataLoaded = false;
+
+    const STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa'];
+
+    // ---------- Storage helpers ----------
+    function loadAll() {
+      try { members = JSON.parse(localStorage.getItem('kt-members')) || []; } catch (e) { members = []; }
+      try { meetings = JSON.parse(localStorage.getItem('kt-meetings')) || []; } catch (e) { meetings = []; }
+      try { attendance = JSON.parse(localStorage.getItem('kt-attendance')) || {}; } catch (e) { attendance = {}; }
+      dataLoaded = true;
+      if (meetings.length) selectedMeetingId = [...meetings].sort((a, b) => b.date.localeCompare(a.date))[0].id;
+      render();
+    }
+
+    let saveTimeout = null;
+    function flashSaved() {
+      const el = document.getElementById('save-indicator');
+      if (!el) return;
+      el.classList.add('show');
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => el.classList.remove('show'), 1200);
+    }
+
+    function saveMembers() { localStorage.setItem('kt-members', JSON.stringify(members)); flashSaved(); }
+    function saveMeetings() { localStorage.setItem('kt-meetings', JSON.stringify(meetings)); flashSaved(); }
+    function saveAttendance() { localStorage.setItem('kt-attendance', JSON.stringify(attendance)); flashSaved(); }
+    // ---------- Derived data ----------
+    function sortedMeetings() { return [...meetings].sort((a, b) => b.date.localeCompare(a.date)); }
+    function sortedMembers() { return [...members].sort((a, b) => a.name.localeCompare(b.name, 'id')); }
+
+    function memberStats(memberId) {
+      let total = 0, hadir = 0;
+      meetings.forEach(m => {
+        const st = attendance[m.id] && attendance[m.id][memberId];
+        if (st) { total++; if (st === 'Hadir') hadir++; }
+      });
+      return { total, hadir, pct: total ? Math.round(hadir / total * 100) : null };
+    }
+    function meetingRecap(meetingId) {
+      const rec = { Hadir: 0, Izin: 0, Sakit: 0, Alpa: 0, belum: 0 };
+      members.forEach(mem => {
+        const st = attendance[meetingId] && attendance[meetingId][mem.id];
+        if (st) rec[st]++; else rec.belum++;
+      });
+      return rec;
+    }
+    function overallAttendanceRate() {
+      let total = 0, hadir = 0;
+      meetings.forEach(m => {
+        members.forEach(mem => {
+          const st = attendance[m.id] && attendance[m.id][mem.id];
+          if (st) { total++; if (st === 'Hadir') hadir++; }
+        });
+      });
+      return total ? Math.round(hadir / total * 100) : null;
+    }
+
+    // ---------- Rendering ----------
+    function esc(s) { return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function fmtDate(d) {
+      if (!d) return '';
+      const dt = new Date(d + 'T00:00:00');
+      return dt.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function renderTabs() {
+      const tabs = [
+        ['ringkasan', 'Ringkasan'],
+        ['anggota', 'Anggota'],
+        ['absensi', 'Absensi'],
+        ['riwayat', 'Riwayat'],
+      ];
+      document.getElementById('tabs').innerHTML = tabs.map(([key, label]) =>
+        `<button class="tab-btn ${activeTab === key ? 'active' : ''}" onclick="setTab('${key}')">${label}</button>`
+      ).join('') + `<span class="save-indicator" id="save-indicator" style="align-self:center;margin-left:auto;">Tersimpan</span>`;
+    }
+    function setTab(t) { activeTab = t; render(); }
+
+    function render() {
+      renderTabs();
+      const el = document.getElementById('content');
+      if (!dataLoaded) { el.innerHTML = '<p class="muted">Memuat data...</p>'; return; }
+      if (activeTab === 'ringkasan') el.innerHTML = renderRingkasan();
+      else if (activeTab === 'anggota') el.innerHTML = renderAnggota();
+      else if (activeTab === 'absensi') el.innerHTML = renderAbsensi();
+      else if (activeTab === 'riwayat') el.innerHTML = renderRiwayat();
+    }
+
+    // ----- Ringkasan -----
+    function renderRingkasan() {
+      const rate = overallAttendanceRate();
+      const withStats = sortedMembers().map(m => ({ ...m, stats: memberStats(m.id) })).filter(m => m.stats.total > 0);
+      const lowest = [...withStats].sort((a, b) => a.stats.pct - b.stats.pct).slice(0, 5);
+      const lastMeeting = sortedMeetings()[0];
+      const lastRecap = lastMeeting ? meetingRecap(lastMeeting.id) : null;
+
+      return `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="num">${members.length}</div><div class="label">Total anggota terdaftar</div></div>
+      <div class="stat-card"><div class="num">${meetings.length}</div><div class="label">Rapat tercatat</div></div>
+      <div class="stat-card"><div class="num">${rate === null ? '–' : rate + '%'}</div><div class="label">Rata-rata kehadiran</div></div>
+    </div>
+
+    ${lastMeeting ? `
+    <div class="card">
+      <h2>Rapat terakhir</h2>
+      <p class="muted" style="margin-top:-8px;">${esc(lastMeeting.title)} &middot; ${fmtDate(lastMeeting.date)}</p>
+      <div class="field-row" style="margin-top:12px;">
+        <div class="stat-card" style="flex:1;"><div class="num" style="color:var(--primary-dark);font-size:1.4rem;">${lastRecap.Hadir}</div><div class="label">Hadir</div></div>
+        <div class="stat-card" style="flex:1;"><div class="num" style="color:var(--gold);font-size:1.4rem;">${lastRecap.Izin}</div><div class="label">Izin</div></div>
+        <div class="stat-card" style="flex:1;"><div class="num" style="color:var(--sakit);font-size:1.4rem;">${lastRecap.Sakit}</div><div class="label">Sakit</div></div>
+        <div class="stat-card" style="flex:1;"><div class="num" style="color:var(--alpa);font-size:1.4rem;">${lastRecap.Alpa}</div><div class="label">Alpa</div></div>
+      </div>
+    </div>` : `
+    <div class="card empty-state">
+      <p>Belum ada rapat yang dicatat. Mulai dari tab <strong>Absensi</strong> untuk membuat rapat pertama.</p>
+    </div>`}
+
+    ${lowest.length ? `
+    <div class="card">
+      <h2>Kehadiran perlu perhatian</h2>
+      <p class="muted" style="margin-top:-8px;">5 anggota dengan persentase kehadiran terendah</p>
+      <table style="margin-top:10px;">
+        <tr><th>Nama</th><th>Hadir</th><th>Persentase</th></tr>
+        ${lowest.map(m => `
+          <tr>
+            <td>${esc(m.name)}</td>
+            <td>${m.stats.hadir}/${m.stats.total}</td>
+            <td>
+              ${m.stats.pct}%
+              <div class="progress-bar"><div class="fill" style="width:${m.stats.pct}%;background:${m.stats.pct < 50 ? 'var(--alpa)' : 'var(--gold)'}"></div></div>
+            </td>
+          </tr>`).join('')}
+      </table>
+    </div>` : ''}
+  `;
+    }
+
+    // ----- Anggota -----
+    function renderAnggota() {
+      const list = sortedMembers().filter(m => m.name.toLowerCase().includes(memberSearch.toLowerCase()) || (m.dusun || '').toLowerCase().includes(memberSearch.toLowerCase()));
+      return `
+    <div class="card">
+      <h2>Tambah anggota</h2>
+      <div class="field-row">
+        <div class="field"><label>Nama</label><input type="text" id="new-member-name" placeholder="Nama lengkap"></div>
+        <div class="field"><label>Dusun / RT (opsional)</label><input type="text" id="new-member-dusun" placeholder="Contoh: Dusun Krajan"></div>
+      </div>
+      <button class="btn" onclick="addMember()">Tambah anggota</button>
+    </div>
+
+    <div class="card">
+      <h3>Tambah banyak sekaligus</h3>
+      <p class="muted" style="margin-top:-4px;">Tempel daftar nama, satu nama per baris. Cocok untuk mengisi ke-69 anggota dengan cepat.</p>
+      <div class="field"><textarea id="bulk-names" placeholder="Contoh:&#10;Ahmad Fauzi&#10;Siti Nur Aini&#10;Budi Santoso"></textarea></div>
+      <button class="btn secondary" onclick="bulkAddMembers()">Tambah dari daftar</button>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <h2 style="margin:0;">Daftar anggota <span class="muted">(${members.length}${members.length < 69 ? ' / rencana 69' : ''})</span></h2>
+        <input type="text" class="search-input" placeholder="Cari nama atau dusun..." value="${esc(memberSearch)}" oninput="memberSearch=this.value; render();">
+      </div>
+      ${list.length ? `
+      <table>
+        <tr><th>Nama</th><th>Dusun/RT</th><th>Kehadiran</th><th></th></tr>
+        ${list.map(m => {
+        const st = memberStats(m.id);
+        return `<tr>
+            <td>${esc(m.name)}</td>
+            <td class="muted">${esc(m.dusun || '-')}</td>
+            <td class="muted">${st.total ? st.pct + '% (' + st.hadir + '/' + st.total + ')' : 'Belum ada data'}</td>
+            <td style="text-align:right;">
+              <button class="btn ghost small" onclick="editMember('${m.id}')">Ubah</button>
+              <button class="btn ghost small" onclick="deleteMember('${m.id}')">Hapus</button>
+            </td>
+          </tr>`;
+      }).join('')}
+      </table>` : `<div class="empty-state"><p>${members.length ? 'Tidak ada anggota yang cocok dengan pencarian.' : 'Belum ada anggota. Tambahkan lewat form di atas.'}</p></div>`}
+    </div>
+  `;
+    }
+
+    function addMember() {
+      const nameEl = document.getElementById('new-member-name');
+      const dusunEl = document.getElementById('new-member-dusun');
+      const name = nameEl.value.trim();
+      if (!name) { nameEl.focus(); return; }
+      members.push({ id: uid('mem-'), name, dusun: dusunEl.value.trim() });
+      nameEl.value = ''; dusunEl.value = '';
+      saveMembers();
+      render();
+    }
+    function bulkAddMembers() {
+      const ta = document.getElementById('bulk-names');
+      const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
+      if (!lines.length) return;
+      lines.forEach(name => members.push({ id: uid('mem-'), name, dusun: '' }));
+      ta.value = '';
+      saveMembers();
+      render();
+    }
+    function editMember(id) {
+      const m = members.find(x => x.id === id);
+      if (!m) return;
+      const name = prompt('Ubah nama anggota:', m.name);
+      if (name === null) return;
+      const dusun = prompt('Ubah dusun/RT (boleh kosong):', m.dusun || '');
+      if (dusun === null) return;
+      m.name = name.trim() || m.name;
+      m.dusun = dusun.trim();
+      saveMembers();
+      render();
+    }
+    function deleteMember(id) {
+      const m = members.find(x => x.id === id);
+      if (!m) return;
+      if (!confirm(`Hapus ${m.name} dari daftar anggota? Data kehadiran lama tetap tersimpan.`)) return;
+      members = members.filter(x => x.id !== id);
+      saveMembers();
+      render();
+    }
+
+    // ----- Absensi -----
+    function renderAbsensi() {
+      const list = sortedMeetings();
+      const meeting = meetings.find(m => m.id === selectedMeetingId);
+
+      const selector = `
+    <div class="card">
+      <div class="toolbar">
+        <div class="field" style="flex:1;min-width:200px;margin-bottom:0;">
+          <label>Pilih rapat</label>
+          <select onchange="selectedMeetingId=this.value; render();">
+            <option value="">-- pilih rapat --</option>
+            ${list.map(m => `<option value="${m.id}" ${m.id === selectedMeetingId ? 'selected' : ''}>${fmtDate(m.date)} — ${esc(m.title)}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn secondary" onclick="showNewMeetingForm()">+ Rapat baru</button>
+      </div>
+      <div id="new-meeting-form" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+        <div class="field-row">
+          <div class="field"><label>Tanggal</label><input type="date" id="new-meeting-date"></div>
+          <div class="field"><label>Judul / keterangan</label><input type="text" id="new-meeting-title" placeholder="Contoh: Rapat Rutin Bulanan"></div>
+        </div>
+        <button class="btn" onclick="createMeeting()">Buat rapat &amp; mulai absen</button>
+        <button class="btn ghost" onclick="hideNewMeetingForm()">Batal</button>
+      </div>
+    </div>
+  `;
+
+      if (!meeting) {
+        return selector + (members.length === 0 ? `<div class="card empty-state"><p>Tambahkan anggota terlebih dahulu di tab <strong>Anggota</strong> sebelum membuat rapat.</p></div>` : '');
+      }
+
+      const recap = meetingRecap(meeting.id);
+      const filtered = sortedMembers().filter(m => m.name.toLowerCase().includes(attendanceSearch.toLowerCase()));
+
+      return selector + `
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <h2 style="margin-bottom:2px;">${esc(meeting.title)}</h2>
+          <p class="muted" style="margin:0;">${fmtDate(meeting.date)}</p>
+        </div>
+        <div style="text-align:right;">
+          <button class="btn secondary small no-print" onclick="markAllHadir('${meeting.id}')">Tandai semua Hadir</button>
+          <button class="btn ghost small no-print" onclick="deleteMeeting('${meeting.id}')">Hapus rapat</button>
+        </div>
+      </div>
+      <div class="field-row" style="margin-bottom:10px;">
+        <span class="badge Hadir">Hadir ${recap.Hadir}</span>
+        <span class="badge Izin">Izin ${recap.Izin}</span>
+        <span class="badge Sakit">Sakit ${recap.Sakit}</span>
+        <span class="badge Alpa">Alpa ${recap.Alpa}</span>
+        ${recap.belum ? `<span class="badge none">Belum diisi ${recap.belum}</span>` : ''}
+      </div>
+      <input type="text" class="search-input no-print" placeholder="Cari nama anggota..." value="${esc(attendanceSearch)}" oninput="attendanceSearch=this.value; render();" style="margin-bottom:10px;">
+      <table>
+        <tr><th>Nama</th><th>Status</th></tr>
+        ${filtered.map(m => {
+        const st = attendance[meeting.id] && attendance[meeting.id][m.id];
+        return `<tr>
+            <td>${esc(m.name)}</td>
+            <td>
+              <div class="status-group">
+                ${STATUSES.map(s => `<button class="status-btn ${st === s ? 'active' : ''}" data-status="${s}" onclick="setAttendance('${meeting.id}','${m.id}','${s}')">${s}</button>`).join('')}
+              </div>
+            </td>
+          </tr>`;
+      }).join('')}
+      </table>
+    </div>
+  `;
+    }
+    function showNewMeetingForm() {
+      document.getElementById('new-meeting-form').style.display = 'block';
+      const dateEl = document.getElementById('new-meeting-date');
+      if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);
+    }
+    function hideNewMeetingForm() { document.getElementById('new-meeting-form').style.display = 'none'; }
+    function createMeeting() {
+      const date = document.getElementById('new-meeting-date').value;
+      const title = document.getElementById('new-meeting-title').value.trim() || 'Rapat Rutin Bulanan';
+      if (!date) { alert('Isi tanggal rapat terlebih dahulu.'); return; }
+      const id = uid('mtg-');
+      meetings.push({ id, date, title });
+      attendance[id] = {};
+      members.forEach(m => attendance[id][m.id] = 'Hadir');
+      selectedMeetingId = id;
+      saveMeetings();
+      saveAttendance();
+      render();
+    }
+    function setAttendance(meetingId, memberId, status) {
+      if (!attendance[meetingId]) attendance[meetingId] = {};
+      attendance[meetingId][memberId] = status;
+      saveAttendance();
+      render();
+    }
+    function markAllHadir(meetingId) {
+      if (!attendance[meetingId]) attendance[meetingId] = {};
+      members.forEach(m => attendance[meetingId][m.id] = 'Hadir');
+      saveAttendance();
+      render();
+    }
+    function deleteMeeting(meetingId) {
+      const m = meetings.find(x => x.id === meetingId);
+      if (!m) return;
+      if (!confirm(`Hapus data rapat "${m.title}" (${fmtDate(m.date)})? Tindakan ini tidak bisa dibatalkan.`)) return;
+      meetings = meetings.filter(x => x.id !== meetingId);
+      delete attendance[meetingId];
+      if (selectedMeetingId === meetingId) selectedMeetingId = meetings.length ? sortedMeetings()[0].id : null;
+      saveMeetings();
+      saveAttendance();
+      render();
+    }
+
+    // ----- Riwayat -----
+    function renderRiwayat() {
+      const list = sortedMeetings();
+      if (!list.length) return `<div class="card empty-state"><p>Belum ada riwayat rapat.</p></div>`;
+      return `
+    <div class="card">
+      <h2>Riwayat rapat</h2>
+      <table>
+        <tr><th>Tanggal</th><th>Judul</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th></th></tr>
+        ${list.map(m => {
+        const r = meetingRecap(m.id);
+        return `<tr class="meeting-row" onclick="openMeetingFromRiwayat('${m.id}')">
+            <td>${fmtDate(m.date)}</td>
+            <td>${esc(m.title)}</td>
+            <td>${r.Hadir}</td>
+            <td>${r.Izin}</td>
+            <td>${r.Sakit}</td>
+            <td>${r.Alpa}</td>
+            <td style="text-align:right;"><button class="btn ghost small" onclick="event.stopPropagation(); printMeeting('${m.id}')">Cetak</button></td>
+          </tr>`;
+      }).join('')}
+      </table>
+    </div>
+  `;
+    }
+    function openMeetingFromRiwayat(id) {
+      selectedMeetingId = id;
+      activeTab = 'absensi';
+      render();
+    }
+    function printMeeting(id) {
+      selectedMeetingId = id;
+      activeTab = 'absensi';
+      render();
+      setTimeout(() => window.print(), 200);
+    }
+
+    // ---------- Init ----------
+    loadAll();
+  </script>
+</body>
+
+</html>
