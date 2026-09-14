@@ -488,23 +488,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
   <script>
-    // ================================================================
-    // GANTI BAGIAN INI dengan config dari Firebase Console kamu.
-    // Ambil PERSIS dari: Project settings > General > Your apps > SDK setup.
-    // databaseURL WAJIB diambil dari menu Build > Realtime Database
-    // (bukan dari snippet default, karena snippet default kadang tidak menyertakannya).
-    // apiKey itu case-sensitive — satu huruf salah besar/kecil bisa bikin semuanya gagal.
-    // ================================================================
-    const firebaseConfig = {
-      apiKey: "AIzaSyAvJEtKQAynK9WqryoPsJaBCOGKbh827q4",
-      authDomain: "absensi-remaja-damai.firebaseapp.com",
-      databaseURL: "https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "absensi-remaja-damai",
-      storageBucket: "absensi-remaja-damai.firebasestorage.app",
-      messagingSenderId: "311447863564",
-      appId: "1:311447863564:web:19fd82bd4bc49471d80929"
-    };
 
+os.getenv("Nama_Secret_Repository")
     // ---------- State ----------
     let members = [];
     let meetings = [];
