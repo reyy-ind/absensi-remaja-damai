@@ -494,21 +494,25 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-function loadAll() {
-  db.ref('/').on('value', (snapshot) => {
-    const data = snapshot.val() || {};
-    members = data.members ? JSON.parse(data.members) : [];
-    meetings = data.meetings ? JSON.parse(data.meetings) : [];
-    attendance = data.attendance ? JSON.parse(data.attendance) : {};
     
-    dataLoaded = true;
-    if(meetings.length) selectedMeetingId = [...meetings].sort((a,b)=>b.date.localeCompare(a.date))[0].id;
-    render();
-  });
-}
+    // Trik mengatasi bug Firebase: Masukkan URL database secara eksplisit di sini
+    const db = firebase.app().database("https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app");
 
+    function loadAll() {
+      // Panggil render() duluan agar layar tidak blank putih
+      render(); 
+      
+      db.ref('/').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        members = data.members ? JSON.parse(data.members) : [];
+        meetings = data.meetings ? JSON.parse(data.meetings) : [];
+        attendance = data.attendance ? JSON.parse(data.attendance) : {};
+        
+        dataLoaded = true;
+        if(meetings.length) selectedMeetingId = [...meetings].sort((a,b)=>b.date.localeCompare(a.date))[0].id;
+        render(); // Perbarui layar saat data sudah masuk
+      });
+    }
 let saveTimeout=null;
 function flashSaved(){
   const el = document.getElementById('save-indicator');
