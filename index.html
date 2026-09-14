@@ -466,7 +466,8 @@
     <nav class="tabs" id="tabs"></nav>
     <main id="content"></main>
   </div>
-
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
   <script>
     // ---------- State ----------
     let members = [];
@@ -481,27 +482,47 @@
     const STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa'];
 
     // ---------- Storage helpers ----------
-    function loadAll() {
-      try { members = JSON.parse(localStorage.getItem('kt-members')) || []; } catch (e) { members = []; }
-      try { meetings = JSON.parse(localStorage.getItem('kt-meetings')) || []; } catch (e) { meetings = []; }
-      try { attendance = JSON.parse(localStorage.getItem('kt-attendance')) || {}; } catch (e) { attendance = {}; }
-      dataLoaded = true;
-      if (meetings.length) selectedMeetingId = [...meetings].sort((a, b) => b.date.localeCompare(a.date))[0].id;
-      render();
-    }
+// ---------- Storage helpers ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyAvJEtKQAynK9WqryoPsJaBCOGkbh827q4",
+  authDomain: "absensi-remaja-damai.firebaseapp.com",
+  databaseURL: "https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app", 
+  projectId: "absensi-remaja-damai",
+  storageBucket: "absensi-remaja-damai.firebasestorage.app",
+  messagingSenderId: "311447863564",
+  appId: "1:311447863564:web:19fd82bd4bc49471d80929"
+};
 
-    let saveTimeout = null;
-    function flashSaved() {
-      const el = document.getElementById('save-indicator');
-      if (!el) return;
-      el.classList.add('show');
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => el.classList.remove('show'), 1200);
-    }
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    function saveMembers() { localStorage.setItem('kt-members', JSON.stringify(members)); flashSaved(); }
-    function saveMeetings() { localStorage.setItem('kt-meetings', JSON.stringify(meetings)); flashSaved(); }
-    function saveAttendance() { localStorage.setItem('kt-attendance', JSON.stringify(attendance)); flashSaved(); }
+function loadAll() {
+  db.ref('/').on('value', (snapshot) => {
+    const data = snapshot.val() || {};
+    members = data.members ? JSON.parse(data.members) : [];
+    meetings = data.meetings ? JSON.parse(data.meetings) : [];
+    attendance = data.attendance ? JSON.parse(data.attendance) : {};
+    
+    dataLoaded = true;
+    if(meetings.length) selectedMeetingId = [...meetings].sort((a,b)=>b.date.localeCompare(a.date))[0].id;
+    render();
+  });
+}
+
+let saveTimeout=null;
+function flashSaved(){
+  const el = document.getElementById('save-indicator');
+  if(!el) return;
+  el.classList.add('show');
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(()=>el.classList.remove('show'),1200);
+}
+
+function saveMembers(){ db.ref('members').set(JSON.stringify(members)); flashSaved(); }
+function saveMeetings(){ db.ref('meetings').set(JSON.stringify(meetings)); flashSaved(); }
+function saveAttendance(){ db.ref('attendance').set(JSON.stringify(attendance)); flashSaved(); }
+
+function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
     // ---------- Derived data ----------
     function sortedMeetings() { return [...meetings].sort((a, b) => b.date.localeCompare(a.date)); }
     function sortedMembers() { return [...members].sort((a, b) => a.name.localeCompare(b.name, 'id')); }
