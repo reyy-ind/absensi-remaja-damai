@@ -82,6 +82,22 @@
       font-size: 0.92rem;
     }
 
+    .error-banner {
+      display: none;
+      background: #F3DFD9;
+      border: 1px solid #A24A3B;
+      color: #6E2E22;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .error-banner.show { display: block; }
+    .error-banner strong { display:block; margin-bottom:4px; font-family:'Fraunces',serif; font-size:1rem; }
+    .error-banner code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; font-size:0.85em; }
+
     .tabs {
       display: flex;
       gap: 4px;
@@ -438,6 +454,7 @@
     }
 
     @media print {
+
       .tabs,
       .toolbar button,
       .no-print {
@@ -462,30 +479,24 @@
       </div>
     </div>
 
+    <div class="error-banner" id="error-banner"></div>
+
     <nav class="tabs" id="tabs"></nav>
     <main id="content"></main>
   </div>
 
-  <!-- Firebase SDK Scripts -->
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
-
   <script>
-    // ---------- State ----------
-    let members = [];
-    let meetings = [];
-    let attendance = {}; 
-    let activeTab = 'ringkasan';
-    let selectedMeetingId = null;
-    let memberSearch = '';
-    let attendanceSearch = '';
-    let dataLoaded = false;
-
-    const STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa'];
-
-    // ---------- Konfigurasi Firebase ----------
+    // ================================================================
+    // GANTI BAGIAN INI dengan config dari Firebase Console kamu.
+    // Ambil PERSIS dari: Project settings > General > Your apps > SDK setup.
+    // databaseURL WAJIB diambil dari menu Build > Realtime Database
+    // (bukan dari snippet default, karena snippet default kadang tidak menyertakannya).
+    // apiKey itu case-sensitive — satu huruf salah besar/kecil bisa bikin semuanya gagal.
+    // ================================================================
     const firebaseConfig = {
-      apiKey: "AIzaSyAvJEtKQAynK9WqryoPsJaBCOGkbh827q4",
+      apiKey: "AIzaSyAvJEtKQAynK9WqryoPsJaBCOGKbh827q4",
       authDomain: "absensi-remaja-damai.firebaseapp.com",
       databaseURL: "https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "absensi-remaja-damai",
@@ -494,21 +505,74 @@
       appId: "1:311447863564:web:19fd82bd4bc49471d80929"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.app().database("https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app");
+    // ---------- State ----------
+    let members = [];
+    let meetings = [];
+    let attendance = {}; // { meetingId: { memberId: status } }
+    let activeTab = 'ringkasan';
+    let selectedMeetingId = null;
+    let memberSearch = '';
+    let attendanceSearch = '';
+    let dataLoaded = false;
+    let db = null;
+
+    const STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa'];
+
+    function showError(title, detail) {
+      const el = document.getElementById('error-banner');
+      el.innerHTML = `<strong>${title}</strong>${detail}`;
+      el.classList.add('show');
+    }
+    function clearError() {
+      const el = document.getElementById('error-banner');
+      el.classList.remove('show');
+      el.innerHTML = '';
+    }
+
+    // ---------- Firebase init (dibungkus try/catch supaya error terlihat di layar) ----------
+    function initFirebase() {
+      if (typeof firebase === 'undefined') {
+        showError(
+          'Gagal memuat Firebase',
+          'Skrip Firebase dari gstatic.com tidak berhasil dimuat. Cek koneksi internet, atau buka DevTools tab <b>Network</b> dan cari baris "firebasejs" — kalau statusnya gagal/merah, biasanya diblokir oleh ad-blocker atau ekstensi browser.'
+        );
+        return false;
+      }
+      try {
+        firebase.initializeApp(firebaseConfig);
+        // Trik region non-default (asia-southeast1 dsb): sertakan URL eksplisit di sini.
+        db = firebase.app().database(firebaseConfig.databaseURL);
+        return true;
+      } catch (e) {
+        showError(
+          'Firebase gagal diinisialisasi',
+          'Pesan error: <code>' + esc(e.message) + '</code><br>Cek lagi <code>apiKey</code> dan <code>databaseURL</code> di kode — harus disalin PERSIS dari Firebase Console (perhatikan huruf besar/kecil).'
+        );
+        return false;
+      }
+    }
 
     // ---------- Storage helpers ----------
     function loadAll() {
-      render(); 
+      render(); // render dulu supaya tab tetap muncul walau data belum datang / gagal
+      if (!db) return;
       db.ref('/').on('value', (snapshot) => {
+        clearError();
         const data = snapshot.val() || {};
         members = data.members ? JSON.parse(data.members) : [];
         meetings = data.meetings ? JSON.parse(data.meetings) : [];
         attendance = data.attendance ? JSON.parse(data.attendance) : {};
-        
+
         dataLoaded = true;
-        if(meetings.length) selectedMeetingId = [...meetings].sort((a,b)=>b.date.localeCompare(a.date))[0].id;
-        render(); 
+        if (meetings.length) selectedMeetingId = [...meetings].sort((a, b) => b.date.localeCompare(a.date))[0].id;
+        render();
+      }, (err) => {
+        dataLoaded = true; // biar tidak stuck di "Memuat data..." selamanya
+        showError(
+          'Tidak bisa membaca data dari database',
+          'Pesan error: <code>' + esc(err.message) + '</code><br>Kemungkinan besar <b>Realtime Database Rules</b> masih menolak akses. Buka Firebase Console → Build → Realtime Database → tab Rules, lalu untuk sementara set <code>".read": true, ".write": true</code> supaya bisa diuji dulu (nanti bisa diperketat lagi).'
+        );
+        render();
       });
     }
 
@@ -521,9 +585,25 @@
       saveTimeout = setTimeout(() => el.classList.remove('show'), 1200);
     }
 
-    function saveMembers() { db.ref('members').set(JSON.stringify(members)); flashSaved(); }
-    function saveMeetings() { db.ref('meetings').set(JSON.stringify(meetings)); flashSaved(); }
-    function saveAttendance() { db.ref('attendance').set(JSON.stringify(attendance)); flashSaved(); }
+    function handleSaveError(err) {
+      showError(
+        'Gagal menyimpan data',
+        'Pesan error: <code>' + esc(err.message) + '</code><br>Cek Realtime Database Rules-mu di Firebase Console (lihat catatan di atas).'
+      );
+    }
+
+    function saveMembers() {
+      if (!db) return;
+      db.ref('members').set(JSON.stringify(members)).then(flashSaved).catch(handleSaveError);
+    }
+    function saveMeetings() {
+      if (!db) return;
+      db.ref('meetings').set(JSON.stringify(meetings)).then(flashSaved).catch(handleSaveError);
+    }
+    function saveAttendance() {
+      if (!db) return;
+      db.ref('attendance').set(JSON.stringify(attendance)).then(flashSaved).catch(handleSaveError);
+    }
 
     function uid(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
@@ -539,7 +619,6 @@
       });
       return { total, hadir, pct: total ? Math.round(hadir / total * 100) : null };
     }
-    
     function meetingRecap(meetingId) {
       const rec = { Hadir: 0, Izin: 0, Sakit: 0, Alpa: 0, belum: 0 };
       members.forEach(mem => {
@@ -548,7 +627,6 @@
       });
       return rec;
     }
-    
     function overallAttendanceRate() {
       let total = 0, hadir = 0;
       meetings.forEach(m => {
@@ -561,7 +639,7 @@
     }
 
     // ---------- Rendering ----------
-    function esc(s) { return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function esc(s) { return (s || '').toString().replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     function fmtDate(d) {
       if (!d) return '';
       const dt = new Date(d + 'T00:00:00');
@@ -579,7 +657,6 @@
         `<button class="tab-btn ${activeTab === key ? 'active' : ''}" onclick="setTab('${key}')">${label}</button>`
       ).join('') + `<span class="save-indicator" id="save-indicator" style="align-self:center;margin-left:auto;">Tersimpan</span>`;
     }
-    
     function setTab(t) { activeTab = t; render(); }
 
     function render() {
@@ -697,7 +774,6 @@
       saveMembers();
       render();
     }
-    
     function bulkAddMembers() {
       const ta = document.getElementById('bulk-names');
       const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
@@ -707,7 +783,6 @@
       saveMembers();
       render();
     }
-    
     function editMember(id) {
       const m = members.find(x => x.id === id);
       if (!m) return;
@@ -720,7 +795,6 @@
       saveMembers();
       render();
     }
-    
     function deleteMember(id) {
       const m = members.find(x => x.id === id);
       if (!m) return;
@@ -802,15 +876,12 @@
     </div>
   `;
     }
-    
     function showNewMeetingForm() {
       document.getElementById('new-meeting-form').style.display = 'block';
       const dateEl = document.getElementById('new-meeting-date');
       if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);
     }
-    
     function hideNewMeetingForm() { document.getElementById('new-meeting-form').style.display = 'none'; }
-    
     function createMeeting() {
       const date = document.getElementById('new-meeting-date').value;
       const title = document.getElementById('new-meeting-title').value.trim() || 'Rapat Rutin Bulanan';
@@ -824,21 +895,18 @@
       saveAttendance();
       render();
     }
-    
     function setAttendance(meetingId, memberId, status) {
       if (!attendance[meetingId]) attendance[meetingId] = {};
       attendance[meetingId][memberId] = status;
       saveAttendance();
       render();
     }
-    
     function markAllHadir(meetingId) {
       if (!attendance[meetingId]) attendance[meetingId] = {};
       members.forEach(m => attendance[meetingId][m.id] = 'Hadir');
       saveAttendance();
       render();
     }
-    
     function deleteMeeting(meetingId) {
       const m = meetings.find(x => x.id === meetingId);
       if (!m) return;
@@ -876,13 +944,11 @@
     </div>
   `;
     }
-    
     function openMeetingFromRiwayat(id) {
       selectedMeetingId = id;
       activeTab = 'absensi';
       render();
     }
-    
     function printMeeting(id) {
       selectedMeetingId = id;
       activeTab = 'absensi';
@@ -891,7 +957,12 @@
     }
 
     // ---------- Init ----------
-    loadAll();
+    if (initFirebase()) {
+      loadAll();
+    } else {
+      dataLoaded = true;
+      render();
+    }
   </script>
 </body>
 
