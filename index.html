@@ -438,7 +438,6 @@
     }
 
     @media print {
-
       .tabs,
       .toolbar button,
       .no-print {
@@ -466,13 +465,16 @@
     <nav class="tabs" id="tabs"></nav>
     <main id="content"></main>
   </div>
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+
+  <!-- Firebase SDK Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-database-compat.js"></script>
+
   <script>
     // ---------- State ----------
     let members = [];
     let meetings = [];
-    let attendance = {}; // { meetingId: { memberId: status } }
+    let attendance = {}; 
     let activeTab = 'ringkasan';
     let selectedMeetingId = null;
     let memberSearch = '';
@@ -481,27 +483,23 @@
 
     const STATUSES = ['Hadir', 'Izin', 'Sakit', 'Alpa'];
 
-    // ---------- Storage helpers ----------
-// ---------- Storage helpers ----------
-const firebaseConfig = {
-  apiKey: "AIzaSyAvJEtKQAynK9WqryoPsJaBCOGkbh827q4",
-  authDomain: "absensi-remaja-damai.firebaseapp.com",
-  databaseURL: "https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app", // <--- BARIS INI YANG BIKIN ERROR KALAU HILANG
-  projectId: "absensi-remaja-damai",
-  storageBucket: "absensi-remaja-damai.firebasestorage.app",
-  messagingSenderId: "311447863564",
-  appId: "1:311447863564:web:19fd82bd4bc49471d80929"
-};
+    // ---------- Konfigurasi Firebase ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyAvJEtKQAynK9WqryoPsJaBCOGkbh827q4",
+      authDomain: "absensi-remaja-damai.firebaseapp.com",
+      databaseURL: "https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "absensi-remaja-damai",
+      storageBucket: "absensi-remaja-damai.firebasestorage.app",
+      messagingSenderId: "311447863564",
+      appId: "1:311447863564:web:19fd82bd4bc49471d80929"
+    };
 
-firebase.initializeApp(firebaseConfig);
-    
-    // Trik mengatasi bug Firebase: Masukkan URL database secara eksplisit di sini
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.app().database("https://absensi-remaja-damai-default-rtdb.asia-southeast1.firebasedatabase.app");
 
+    // ---------- Storage helpers ----------
     function loadAll() {
-      // Panggil render() duluan agar layar tidak blank putih
       render(); 
-      
       db.ref('/').on('value', (snapshot) => {
         const data = snapshot.val() || {};
         members = data.members ? JSON.parse(data.members) : [];
@@ -510,23 +508,25 @@ firebase.initializeApp(firebaseConfig);
         
         dataLoaded = true;
         if(meetings.length) selectedMeetingId = [...meetings].sort((a,b)=>b.date.localeCompare(a.date))[0].id;
-        render(); // Perbarui layar saat data sudah masuk
+        render(); 
       });
     }
-let saveTimeout=null;
-function flashSaved(){
-  const el = document.getElementById('save-indicator');
-  if(!el) return;
-  el.classList.add('show');
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(()=>el.classList.remove('show'),1200);
-}
 
-function saveMembers(){ db.ref('members').set(JSON.stringify(members)); flashSaved(); }
-function saveMeetings(){ db.ref('meetings').set(JSON.stringify(meetings)); flashSaved(); }
-function saveAttendance(){ db.ref('attendance').set(JSON.stringify(attendance)); flashSaved(); }
+    let saveTimeout = null;
+    function flashSaved() {
+      const el = document.getElementById('save-indicator');
+      if (!el) return;
+      el.classList.add('show');
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => el.classList.remove('show'), 1200);
+    }
 
-function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+    function saveMembers() { db.ref('members').set(JSON.stringify(members)); flashSaved(); }
+    function saveMeetings() { db.ref('meetings').set(JSON.stringify(meetings)); flashSaved(); }
+    function saveAttendance() { db.ref('attendance').set(JSON.stringify(attendance)); flashSaved(); }
+
+    function uid(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
     // ---------- Derived data ----------
     function sortedMeetings() { return [...meetings].sort((a, b) => b.date.localeCompare(a.date)); }
     function sortedMembers() { return [...members].sort((a, b) => a.name.localeCompare(b.name, 'id')); }
@@ -539,6 +539,7 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
       });
       return { total, hadir, pct: total ? Math.round(hadir / total * 100) : null };
     }
+    
     function meetingRecap(meetingId) {
       const rec = { Hadir: 0, Izin: 0, Sakit: 0, Alpa: 0, belum: 0 };
       members.forEach(mem => {
@@ -547,6 +548,7 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
       });
       return rec;
     }
+    
     function overallAttendanceRate() {
       let total = 0, hadir = 0;
       meetings.forEach(m => {
@@ -577,6 +579,7 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
         `<button class="tab-btn ${activeTab === key ? 'active' : ''}" onclick="setTab('${key}')">${label}</button>`
       ).join('') + `<span class="save-indicator" id="save-indicator" style="align-self:center;margin-left:auto;">Tersimpan</span>`;
     }
+    
     function setTab(t) { activeTab = t; render(); }
 
     function render() {
@@ -694,6 +697,7 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
       saveMembers();
       render();
     }
+    
     function bulkAddMembers() {
       const ta = document.getElementById('bulk-names');
       const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
@@ -703,6 +707,7 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
       saveMembers();
       render();
     }
+    
     function editMember(id) {
       const m = members.find(x => x.id === id);
       if (!m) return;
@@ -715,6 +720,7 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
       saveMembers();
       render();
     }
+    
     function deleteMember(id) {
       const m = members.find(x => x.id === id);
       if (!m) return;
@@ -796,12 +802,15 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
     </div>
   `;
     }
+    
     function showNewMeetingForm() {
       document.getElementById('new-meeting-form').style.display = 'block';
       const dateEl = document.getElementById('new-meeting-date');
       if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);
     }
+    
     function hideNewMeetingForm() { document.getElementById('new-meeting-form').style.display = 'none'; }
+    
     function createMeeting() {
       const date = document.getElementById('new-meeting-date').value;
       const title = document.getElementById('new-meeting-title').value.trim() || 'Rapat Rutin Bulanan';
@@ -815,18 +824,21 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
       saveAttendance();
       render();
     }
+    
     function setAttendance(meetingId, memberId, status) {
       if (!attendance[meetingId]) attendance[meetingId] = {};
       attendance[meetingId][memberId] = status;
       saveAttendance();
       render();
     }
+    
     function markAllHadir(meetingId) {
       if (!attendance[meetingId]) attendance[meetingId] = {};
       members.forEach(m => attendance[meetingId][m.id] = 'Hadir');
       saveAttendance();
       render();
     }
+    
     function deleteMeeting(meetingId) {
       const m = meetings.find(x => x.id === meetingId);
       if (!m) return;
@@ -864,11 +876,13 @@ function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().to
     </div>
   `;
     }
+    
     function openMeetingFromRiwayat(id) {
       selectedMeetingId = id;
       activeTab = 'absensi';
       render();
     }
+    
     function printMeeting(id) {
       selectedMeetingId = id;
       activeTab = 'absensi';
